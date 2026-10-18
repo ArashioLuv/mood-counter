@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>鲸鱼娘心情计数器</title>
+  <style>
+    :root {
+      --bg: #eaf6ff;
+      --card: #ffffff;
+      --ink: #2b4a63;
+      --muted: #7b9bb2;
+      --accent: #5aa9e6;
+      --accent-dark: #3f8fd0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 50% 0%, #ffffff 0%, var(--bg) 60%);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      color: var(--ink);
+    }
+
+    .card {
+      width: min(90vw, 380px);
+      padding: 32px 28px 28px;
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(90, 169, 230, 0.18);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    .emoji {
+      font-size: 64px;
+      line-height: 1;
+      margin: 8px 0;
+      transition: transform 0.2s ease;
+    }
+
+    .value {
+      font-size: 44px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--accent-dark);
+    }
+
+    .value small {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .hint {
+      min-height: 22px;
+      font-size: 13px;
+      color: var(--muted);
+      margin: 10px 0 22px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      font: inherit;
+      font-size: 14px;
+      padding: 11px 16px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    button:active { transform: translateY(1px); }
+
+    button.ghost {
+      background: #f2f7fb;
+      color: var(--muted);
+    }
+
+    button.ghost:hover {
+      background: #e6f0f8;
+      color: var(--ink);
+    }
+
+    .bump { transform: scale(1.15) rotate(-6deg); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>🐋 鲸鱼娘心情计数器</h1>
+    <p class="subtitle">mood-counter · v0.1.0</p>
+
+    <div class="emoji" id="emoji">💙</div>
+    <p class="value"><span id="value">100</span> <small>/ 100</small></p>
+    <p class="hint" id="hint">尾巴摆摆，心情超好！</p>
+
+    <div class="buttons">
+      <button id="praise">夸夸她 ♡ +1</button>
+      <button id="ignore">冷落她 -1</button>
+      <button id="reset" class="ghost">重置心情</button>
+    </div>
+  </main>
+
+  <script>
+    const MAX = 100;
+    const MIN = -100;
+
+    let mood = MAX;
+
+    const $value = document.getElementById('value');
+    const $emoji = document.getElementById('emoji');
+    const $hint = document.getElementById('hint');
+
+    function describe(value) {
+      if (value >= 80) return { emoji: '💙', text: '尾巴摆摆，心情超好！' };
+      if (value >= 40) return { emoji: '🐋', text: '还不错的喵～' };
+      if (value >= 0) return { emoji: '🐟', text: '有点无聊，陪我玩嘛。' };
+      if (value >= -40) return { emoji: '🌧️', text: '哼，不理你了。' };
+      return { emoji: '🥲', text: '……主人是不是讨厌我了。' };
+    }
+
+    function render() {
+      const view = describe(mood);
+
+      $value.textContent = mood;
+      $emoji.textContent = view.emoji;
+      $hint.textContent = view.text;
+
+      $emoji.classList.add('bump');
+      setTimeout(() => $emoji.classList.remove('bump'), 180);
+    }
+
+    function change(delta) {
+      mood = Math.max(MIN, Math.min(MAX, mood + delta));
+      render();
+    }
+
+    document.getElementById('praise').addEventListener('click', () => change(1));
+    document.getElementById('ignore').addEventListener('click', () => change(-1));
+    document.getElementById('reset').addEventListener('click', () => {
+      mood = MAX;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
