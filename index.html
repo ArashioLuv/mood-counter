@@ -110,12 +110,31 @@
     }
 
     .bump { transform: scale(1.15) rotate(-6deg); }
+
+    /* v1.1 新增：星星特效 */
+    .spark {
+      position: fixed;
+      font-size: 20px;
+      pointer-events: none;
+      animation: spark-fly 0.8s ease-out forwards;
+    }
+
+    @keyframes spark-fly {
+      from {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(0.4);
+      }
+    }
   </style>
 </head>
 <body>
   <main class="card">
     <h1>🐋 鲸鱼娘心情计数器</h1>
-    <p class="subtitle">mood-counter · v0.1.0</p>
+    <p class="subtitle">mood-counter · v1.1.0</p>
 
     <div class="emoji" id="emoji">💙</div>
     <p class="value"><span id="value">100</span> <small>/ 100</small></p>
@@ -146,7 +165,30 @@
       return { emoji: '🥲', text: '……主人是不是讨厌我了。' };
     }
 
-    function render() {
+    /* v1.1 新增：围绕表情迸出一圈星星 */
+    function spawnSparks() {
+      const rect = $emoji.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      for (let i = 0; i < 8; i += 1) {
+        const spark = document.createElement('div');
+        const angle = (Math.PI * 2 * i) / 8;
+        const distance = 50 + Math.random() * 30;
+
+        spark.className = 'spark';
+        spark.textContent = '✨';
+        spark.style.left = centerX + 'px';
+        spark.style.top = centerY + 'px';
+        spark.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+        spark.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 800);
+      }
+    }
+
+    function render(withSparks) {
       const view = describe(mood);
 
       $value.textContent = mood;
@@ -155,21 +197,23 @@
 
       $emoji.classList.add('bump');
       setTimeout(() => $emoji.classList.remove('bump'), 180);
+
+      if (withSparks) spawnSparks();
     }
 
     function change(delta) {
       mood = Math.max(MIN, Math.min(MAX, mood + delta));
-      render();
+      render(true);
     }
 
     document.getElementById('praise').addEventListener('click', () => change(1));
     document.getElementById('ignore').addEventListener('click', () => change(-1));
     document.getElementById('reset').addEventListener('click', () => {
       mood = MAX;
-      render();
+      render(false);
     });
 
-    render();
+    render(false);
   </script>
 </body>
 </html>
